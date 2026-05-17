@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SkillSphere</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+
+    :root {
+      --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --ink: #172033;
+      --muted: #667085;
+      --line: #d8dee9;
+      --panel: rgba(255, 255, 255, 0.9);
+      --soft: rgba(37, 99, 235, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      min-height: 100%;
+      margin: 0;
+      font-family: "Outfit", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    #sparkleStage {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .sparkle-field {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(37, 99, 235, 0.34) 0 1.2px, transparent 1.8px),
+        radial-gradient(circle, rgba(20, 184, 166, 0.28) 0 1px, transparent 1.8px),
+        radial-gradient(circle, rgba(245, 158, 11, 0.22) 0 1px, transparent 1.8px);
+      background-size: 96px 96px, 144px 144px, 190px 190px;
+      background-position: 0 0, 40px 60px, 90px 20px;
+      animation: sparkleSlide 12s linear infinite;
+      opacity: 0.78;
+    }
+
+    @keyframes sparkleSlide {
+      from { background-position: 0 0, 40px 60px, 90px 20px; }
+      to { background-position: 96px 180px, 184px 10px, -100px 190px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .sparkle-field { animation: none; }
+    }
+
+    header, nav, main, .edge-menu, .modal-backdrop {
+      position: relative;
+      z-index: 1;
+    }
+
+    header {
+      padding: 36px 24px 18px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.1rem, 5vw, 4.5rem);
+      letter-spacing: 0;
+      color: var(--ink);
+    }
+
+    .tagline {
+      margin-top: 8px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.82);
+      border-block: 1px solid rgba(216, 222, 233, 0.8);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+    }
+
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 700;
+      padding: 9px 14px;
+      border-radius: 8px;
+    }
+
+    nav a:hover,
+    nav a.active-nav {
+      color: var(--accent);
+      background: var(--soft);
+    }
+
+    .container {
+      width: min(1080px, calc(100% - 32px));
+      margin: 28px auto 80px;
+    }
+
+    section {
+      display: none;
+      background: var(--panel);
+      border: 1px solid rgba(216, 222, 233, 0.9);
+      border-radius: 8px;
+      padding: 28px;
+      box-shadow: 0 18px 48px rgba(16, 24, 40, 0.08);
+    }
+
+    section.active {
+      display: block;
+    }
+
+    h2, h3 {
+      margin-top: 0;
+      letter-spacing: 0;
+    }
+
+    .small, .meta {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .filters, .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .filters {
+      margin-bottom: 18px;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+    }
+
+    .filter-btn,
+    .btn {
+      min-height: 40px;
+      border-radius: 8px;
+      padding: 9px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .filter-btn {
+      color: var(--muted);
+      background: #f8fafc;
+      border: 1px solid var(--line);
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover {
+      color: var(--accent);
+      border-color: rgba(37, 99, 235, 0.35);
+      background: var(--soft);
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .btn-outline {
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .btn-outline:hover {
+      border-color: rgba(37, 99, 235, 0.38);
+      color: var(--accent);
+      background: var(--soft);
+    }
+
+    .project-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .project-card,
+    .todo-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .project-card strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 1.08rem;
+    }
+
+    .todo-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: 3px solid rgba(37, 99, 235, 0.18);
+      border-color: var(--accent);
+    }
+
+    #todoList {
+      display: grid;
+      gap: 10px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .edge-menu {
+      position: fixed;
+      right: 0;
+      top: 0;
+      height: 100vh;
+      width: 28px;
+      z-index: 80;
+    }
+
+    .edge-tab {
+      position: absolute;
+      right: 0;
+      top: 48%;
+      transform: translateY(-50%);
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      padding: 14px 5px;
+      color: #fff;
+      background: var(--accent);
+      border-radius: 8px 0 0 8px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0;
+    }
+
+    .side-panel {
+      position: fixed;
+      right: 0;
+      top: 0;
+      width: min(360px, calc(100vw - 40px));
+      height: 100vh;
+      padding: 24px;
+      background: rgba(255, 255, 255, 0.96);
+      border-left: 1px solid var(--line);
+      box-shadow: -18px 0 42px rgba(16, 24, 40, 0.12);
+      transform: translateX(100%);
+      transition: transform 0.24s ease;
+      overflow-y: auto;
+    }
+
+    .edge-menu:hover .side-panel,
+    .edge-menu:focus-within .side-panel {
+      transform: translateX(0);
+    }
+
+    .panel-block {
+      border-top: 1px solid var(--line);
+      padding-top: 18px;
+      margin-top: 18px;
+    }
+
+    .form-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .form-stack[hidden],
+    .custom-type-row[hidden] {
+      display: none;
+    }
+
+    .chat-box {
+      min-height: 240px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .msg {
+      width: fit-content;
+      max-width: 82%;
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      line-height: 1.4;
+    }
+
+    .msg.me {
+      margin-left: auto;
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(15, 23, 42, 0.32);
+      opacity: 1;
+      pointer-events: auto;
+      z-index: 120;
+    }
+
+    .modal-backdrop[aria-hidden="true"] {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .modal {
+      width: min(520px, 100%);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      padding: 24px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.24);
+    }
+
+    .detail-text {
+      white-space: pre-wrap;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+
+    #motivateWidget {
+      position: fixed;
+      left: 20px;
+      bottom: 20px;
+      z-index: 70;
+    }
+
+    #motivateBox {
+      display: none;
+      width: min(320px, calc(100vw - 40px));
+      margin-bottom: 10px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 42px rgba(16, 24, 40, 0.12);
+    }
+
+    #motivateWidget.open #motivateBox {
+      display: block;
+    }
+
+    #motivateBox p {
+      margin: 0 0 12px;
+    }
+
+    #motivateAvatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--accent);
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 12px 28px rgba(37, 99, 235, 0.24);
+    }
+
+    @media (max-width: 700px) {
+      nav { justify-content: flex-start; overflow-x: auto; }
+      section { padding: 20px; }
+      .project-card, .todo-item { align-items: flex-start; flex-direction: column; }
+      .todo-row { grid-template-columns: 1fr; }
+      .actions { width: 100%; }
+      .actions .btn { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div id="sparkleStage" aria-hidden="true">
+    <div class="sparkle-field"></div>
+  </div>
+
+  <header>
+    <h1>SkillSphere</h1>
+    <div class="tagline">A place to gear up</div>
+  </header>
+
+  <nav id="mainNav" aria-label="Main navigation">
+    <a href="#" data-target="about" class="active-nav">About</a>
+    <a href="#" data-target="projects">Projects</a>
+    <a href="#" data-target="todo">To-Do</a>
+    <a href="#" data-target="chat">Chat</a>
+    <a href="#" data-target="business">Business</a>
+  </nav>
+
+  <aside class="edge-menu" aria-label="Right menu">
+    <div class="edge-tab">Menu</div>
+    <div class="side-panel">
+      <h2>Menu</h2>
+      <p id="userDisplay" class="small">(not signed in)</p>
+      <div class="actions">
+        <button id="signinBtn" class="btn btn-primary" type="button">Sign in / Register</button>
+        <button id="signoutBtn" class="btn btn-outline" type="button" style="display:none">Sign out</button>
+      </div>
+
+      <div class="panel-block">
+        <button id="openCreateProject" class="btn btn-outline" type="button">Create Project</button>
+        <div id="createProjectForm" class="form-stack" hidden style="margin-top:14px">
+          <h3>Create Project</h3>
+          <input id="projectTitle" placeholder="Project title" />
+          <select id="projectType" aria-label="Project type">
+            <option>Mechanical</option>
+            <option>AI</option>
+            <option>Web</option>
+            <option>Electrical</option>
+            <option>Data</option>
+            <option>Civil</option>
+            <option value="custom">Custom type</option>
+          </select>
+          <div id="customTypeRow" class="custom-type-row" hidden>
+            <input id="projectCustomType" placeholder="Type new project category" />
+          </div>
+          <input id="projectDesc" placeholder="Short description" />
+          <textarea id="projectDetails" placeholder="Write the View Details content here"></textarea>
+          <button id="createProjectBtn" class="btn btn-primary" type="button">Create Project</button>
+          <div id="createProjectMsg" class="small" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="container">
+    <section id="about" class="active">
+      <h2>About</h2>
+      <p class="small">
+        Projects are grouped by course type. Open the right-side menu by moving your mouse to the Menu tab, sign in or register, and create projects with custom View Details content.
+      </p>
+    </section>
+
+    <section id="projects">
+      <h2>Projects</h2>
+      <div class="filters" id="typeFilters" aria-label="Project filters"></div>
+      <div class="small" id="projectCount"></div>
+      <div class="project-list" id="projectsContainer" aria-live="polite"></div>
+    </section>
+
+    <section id="todo">
+      <h2>To-Do</h2>
+      <div class="todo-row">
+        <input id="todoInput" placeholder="Add a task" />
+        <button id="addTodo" class="btn btn-primary" type="button">Add Todo</button>
+      </div>
+      <ul id="todoList" aria-live="polite"></ul>
+    </section>
+
+    <section id="chat">
+      <h2>Chat</h2>
+      <div id="chatBox" class="chat-box" aria-live="polite"></div>
+      <textarea id="chatInput" placeholder="Type a message"></textarea>
+      <div class="actions" style="margin-top:10px">
+        <button id="sendChat" class="btn btn-primary" type="button">Send</button>
+        <button id="clearChat" class="btn btn-outline" type="button">Clear Chat</button>
+      </div>
+    </section>
+
+    <section id="business">
+      <h2>Business Channels</h2>
+      <div id="businessChannels" class="filters"></div>
+      <div id="businessNotice" class="small"></div>
+    </section>
+  </main>
+
+  <div id="authModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <h3 id="authTitle">Sign in / Register</h3>
+      <div id="signinView" class="form-stack">
+        <input id="signinUser" placeholder="Username" autocomplete="username" />
+        <input id="signinPass" placeholder="Password" type="password" autocomplete="current-password" />
+        <div class="actions">
+          <button id="signinSubmit" class="btn btn-primary" type="button">Sign in</button>
+          <button id="showRegister" class="btn btn-outline" type="button">Register</button>
+          <button id="closeAuth" class="btn btn-outline" type="button">Close</button>
+        </div>
+        <div id="authMsg" class="small" aria-live="polite"></div>
+      </div>
+      <div id="registerView" class="form-stack" style="display:none">
+        <input id="regUser" placeholder="Choose username" autocomplete="username" />
+        <input id="regPass" placeholder="Choose password" type="password" autocomplete="new-password" />
+        <div class="actions">
+          <button id="registerSubmit" class="btn btn-primary" type="button">Create account</button>
+          <button id="showSignin" class="btn btn-outline" type="button">Back</button>
+        </div>
+        <div id="regMsg" class="small" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="detailModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+      <h3 id="detailTitle">Project Details</h3>
+      <div id="detailType" class="small"></div>
+      <p id="detailText" class="detail-text"></p>
+      <div class="actions">
+        <button id="detailAddTodo" class="btn btn-primary" type="button">Add Todo</button>
+        <button id="detailClose" class="btn btn-outline" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="motivateWidget" aria-live="polite">
+    <div id="motivateBox" role="dialog" aria-hidden="true" aria-label="Motivation">
+      <h3>Quick Motivation</h3>
+      <p id="motivateText" class="small">Small steps every day add up.</p>
+      <div class="actions">
+        <button id="motivateNew" class="btn btn-outline" type="button">New</button>
+        <button id="motivateClose" class="btn btn-primary" type="button">Close</button>
+      </div>
+    </div>
+    <button id="motivateAvatar" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="motivateBox" title="Motivation">i</button>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const DEFAULT_PROJECTS = [
+        { id: "mech_cnc", title: "Mechanical: CNC Basics", type: "Mechanical", desc: "Machining fundamentals and part fabrication.", details: "Learn machine setup, tool selection, safe operation, and how to document a fabricated part." },
+        { id: "mech_thermo", title: "Mechanical: Thermofluids Mini-Project", type: "Mechanical", desc: "Thermal systems, experiments and reporting.", details: "Build a small thermofluids experiment, record observations, calculate efficiency, and submit a short report." },
+        { id: "ai_intro", title: "AI: Intro to ML", type: "AI", desc: "Basic ML pipeline: data, model, evaluate.", details: "Collect a dataset, train a simple model, evaluate accuracy, and explain what improved the result." },
+        { id: "web_portfolio", title: "Web: Simple Portfolio", type: "Web", desc: "Responsive portfolio using HTML, CSS, and JavaScript.", details: "Create a responsive portfolio page with sections, navigation, project cards, and a clean mobile layout." },
+        { id: "data_analysis", title: "Data: Intro to Data Analysis", type: "Data", desc: "Collect, clean, and visualize a dataset.", details: "Use a dataset to clean missing values, create useful charts, and write the main findings." },
+        { id: "civil_model", title: "Civil: Structural Model", type: "Civil", desc: "Beam and column modelling with load tests.", details: "Create a small structural model, test loading behavior, and summarize failure points." }
+      ];
+
+      const BASE_TYPES = ["Mechanical", "AI", "Web", "Electrical", "Data", "Civil"];
+      const PROJECTS_KEY = "skillsphere_projects_v2";
+      const USERS_KEY = "skillsphere_users_v2";
+      let activeType = "All";
+      let selectedProject = null;
+
+      const qs = (id) => document.getElementById(id);
+      const navLinks = document.querySelectorAll("nav a[data-target]");
+      const sections = document.querySelectorAll("main section");
+      const typeFilters = qs("typeFilters");
+      const projectsContainer = qs("projectsContainer");
+      const projectCount = qs("projectCount");
+
+      function readJson(key, fallback) {
+        try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+        catch { return fallback; }
+      }
+
+      function writeJson(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+
+      function getProjects() {
+        const saved = readJson(PROJECTS_KEY, null);
+        if (Array.isArray(saved)) return saved;
+        writeJson(PROJECTS_KEY, DEFAULT_PROJECTS);
+        return DEFAULT_PROJECTS;
+      }
+
+      function getTypes() {
+        const projectTypes = getProjects().map((project) => project.type).filter(Boolean);
+        return ["All", ...Array.from(new Set([...BASE_TYPES, ...projectTypes]))];
+      }
+
+      function getUsers() { return readJson(USERS_KEY, {}); }
+      function saveUsers(users) { writeJson(USERS_KEY, users); }
+      function getCurrent() { return localStorage.getItem("skillsphere_current_user"); }
+      function setCurrent(user) {
+        if (user) localStorage.setItem("skillsphere_current_user", user);
+        else localStorage.removeItem("skillsphere_current_user");
+        updateAuthUI();
+        renderAll();
+      }
+      function completedKey(user) { return "skillsphere_completed_" + user; }
+      function getCompleted(user) { return user ? readJson(completedKey(user), []) : []; }
+      function saveCompleted(user, value) { if (user) writeJson(completedKey(user), value); }
+      function todoKey() { return "skillsphere_todos_" + (getCurrent() || "demo"); }
+      function getTodos() { return readJson(todoKey(), []); }
+      function saveTodos(todos) { writeJson(todoKey(), todos); }
+
+      function showSection(target) {
+        sections.forEach((section) => section.classList.toggle("active", section.id === target));
+        navLinks.forEach((link) => link.classList.toggle("active-nav", link.dataset.target === target));
+        if (target === "projects") renderProjects();
+        if (target === "todo") renderTodos();
+        if (target === "chat") renderChat();
+        if (target === "business") renderBusinessChannels();
+      }
+
+      navLinks.forEach((link) => {
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          showSection(link.dataset.target);
+        });
+      });
+
+      function renderFilters() {
+        typeFilters.innerHTML = "";
+        getTypes().forEach((type) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "filter-btn" + (type === activeType ? " active" : "");
+          button.textContent = type;
+          button.addEventListener("click", () => {
+            activeType = type;
+            renderFilters();
+            renderProjects();
+          });
+          typeFilters.appendChild(button);
+        });
+      }
+
+      function renderProjects() {
+        const projects = getProjects();
+        const filtered = activeType === "All" ? projects : projects.filter((project) => project.type === activeType);
+        const current = getCurrent();
+        const completed = getCompleted(current);
+        projectsContainer.innerHTML = "";
+        projectCount.textContent = `${filtered.length} project(s) shown`;
+
+        filtered.forEach((project) => {
+          const card = document.createElement("article");
+          card.className = "project-card";
+          const content = document.createElement("div");
+          content.innerHTML = `<strong>${project.title}</strong><div class="meta">${project.type} - ${project.desc}</div>`;
+
+          const actions = document.createElement("div");
+          actions.className = "actions";
+
+          const view = document.createElement("button");
+          view.type = "button";
+          view.className = "btn btn-outline";
+          view.textContent = "View Details";
+          view.addEventListener("click", () => openDetail(project));
+
+          const addTodo = document.createElement("button");
+          addTodo.type = "button";
+          addTodo.className = "btn btn-primary";
+          addTodo.textContent = "Add Todo";
+          addTodo.addEventListener("click", () => addProjectTodo(project));
+
+          const done = document.createElement("button");
+          done.type = "button";
+          done.className = "btn btn-outline";
+          done.textContent = completed.includes(project.id) ? "Completed" : "Mark Complete";
+          done.addEventListener("click", () => {
+            if (!current) {
+              openAuthModal("Sign in to save completed projects.");
+              return;
+            }
+            const latest = getCompleted(current);
+            if (!latest.includes(project.id)) latest.push(project.id);
+            saveCompleted(current, latest);
+            renderProjects();
+            renderBusinessChannels();
+          });
+
+          actions.append(view, addTodo, done);
+          card.append(content, actions);
+          projectsContainer.appendChild(card);
+        });
+      }
+
+      function openDetail(project) {
+        selectedProject = project;
+        qs("detailTitle").textContent = project.title;
+        qs("detailType").textContent = `${project.type} project`;
+        qs("detailText").textContent = project.details || project.desc || "No detail content has been added yet.";
+        qs("detailModal").setAttribute("aria-hidden", "false");
+      }
+
+      function closeDetail() {
+        qs("detailModal").setAttribute("aria-hidden", "true");
+        selectedProject = null;
+      }
+
+      function addProjectTodo(project) {
+        const todos = getTodos();
+        todos.push({ id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), text: project.title, fromProjectId: project.id });
+        saveTodos(todos);
+        showSection("todo");
+      }
+
+      qs("detailAddTodo").addEventListener("click", () => {
+        if (selectedProject) addProjectTodo(selectedProject);
+        closeDetail();
+      });
+      qs("detailClose").addEventListener("click", closeDetail);
+
+      qs("addTodo").addEventListener("click", () => {
+        const input = qs("todoInput");
+        const text = input.value.trim();
+        if (!text) return;
+        const todos = getTodos();
+        todos.push({ id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), text });
+        saveTodos(todos);
+        input.value = "";
+        renderTodos();
+      });
+
+      qs("todoInput").addEventListener("keydown", (event) => {
+        if (event.key === "Enter") qs("addTodo").click();
+      });
+
+      function renderTodos() {
+        const list = qs("todoList");
+        const todos = getTodos();
+        list.innerHTML = "";
+
+        if (!todos.length) {
+          const empty = document.createElement("li");
+          empty.className = "small";
+          empty.textContent = "No todos yet.";
+          list.appendChild(empty);
+          return;
+        }
+
+        todos.forEach((todo) => {
+          const item = document.createElement("li");
+          item.className = "todo-item";
+          const text = document.createElement("span");
+          text.textContent = todo.text;
+          const complete = document.createElement("button");
+          complete.type = "button";
+          complete.className = "btn btn-primary";
+          complete.textContent = "Complete";
+          complete.addEventListener("click", () => {
+            saveTodos(getTodos().filter((entry) => entry.id !== todo.id));
+            renderTodos();
+          });
+          item.append(text, complete);
+          list.appendChild(item);
+        });
+      }
+
+      function openAuthModal(message) {
+        qs("authMsg").textContent = message || "";
+        qs("regMsg").textContent = "";
+        qs("signinView").style.display = "grid";
+        qs("registerView").style.display = "none";
+        qs("authModal").setAttribute("aria-hidden", "false");
+      }
+
+      function closeAuthModal() {
+        qs("authModal").setAttribute("aria-hidden", "true");
+        ["signinUser", "signinPass", "regUser", "regPass"].forEach((id) => { qs(id).value = ""; });
+      }
+
+      qs("signinBtn").addEventListener("click", () => openAuthModal("Sign in or register to save progress."));
+      qs("closeAuth").addEventListener("click", closeAuthModal);
+      qs("showRegister").addEventListener("click", () => {
+        qs("signinView").style.display = "none";
+        qs("registerView").style.display = "grid";
+      });
+      qs("showSignin").addEventListener("click", () => {
+        qs("registerView").style.display = "none";
+        qs("signinView").style.display = "grid";
+      });
+
+      qs("signinSubmit").addEventListener("click", () => {
+        const username = qs("signinUser").value.trim();
+        const password = qs("signinPass").value;
+        const users = getUsers();
+        if (!username || !password) {
+          qs("authMsg").textContent = "Enter username and password.";
+          return;
+        }
+        if (!users[username] || users[username].password !== password) {
+          qs("authMsg").textContent = "Invalid username or password.";
+          return;
+        }
+        setCurrent(username);
+        closeAuthModal();
+      });
+
+      qs("registerSubmit").addEventListener("click", () => {
+        const username = qs("regUser").value.trim();
+        const password = qs("regPass").value;
+        const users = getUsers();
+        if (!username || !password) {
+          qs("regMsg").textContent = "Enter username and password.";
+          return;
+        }
+        if (users[username]) {
+          qs("regMsg").textContent = "Username already exists.";
+          return;
+        }
+        users[username] = { password };
+        saveUsers(users);
+        setCurrent(username);
+        closeAuthModal();
+      });
+
+      qs("signoutBtn").addEventListener("click", () => setCurrent(null));
+
+      function updateAuthUI() {
+        const current = getCurrent();
+        qs("userDisplay").textContent = current ? `Signed in as ${current}` : "(not signed in)";
+        qs("signinBtn").style.display = current ? "none" : "";
+        qs("signoutBtn").style.display = current ? "" : "none";
+      }
+
+      qs("openCreateProject").addEventListener("click", () => {
+        const form = qs("createProjectForm");
+        form.hidden = !form.hidden;
+      });
+
+      qs("projectType").addEventListener("change", () => {
+        qs("customTypeRow").hidden = qs("projectType").value !== "custom";
+      });
+
+      qs("createProjectBtn").addEventListener("click", () => {
+        const title = qs("projectTitle").value.trim();
+        const selectedType = qs("projectType").value;
+        const customType = qs("projectCustomType").value.trim();
+        const type = selectedType === "custom" ? customType : selectedType;
+        const desc = qs("projectDesc").value.trim();
+        const details = qs("projectDetails").value.trim();
+        if (!title || !type || !desc || !details) {
+          qs("createProjectMsg").textContent = "Add a title, type, description, and View Details content.";
+          return;
+        }
+
+        const projects = getProjects();
+        projects.push({
+          id: "custom_" + Date.now(),
+          title,
+          type,
+          desc,
+          details
+        });
+        writeJson(PROJECTS_KEY, projects);
+        ["projectTitle", "projectCustomType", "projectDesc", "projectDetails"].forEach((id) => { qs(id).value = ""; });
+        qs("projectType").value = BASE_TYPES.includes(type) ? type : "custom";
+        qs("customTypeRow").hidden = qs("projectType").value !== "custom";
+        qs("createProjectMsg").textContent = "Project created.";
+        activeType = "All";
+        renderFilters();
+        renderProjects();
+        showSection("projects");
+      });
+
+      function chatKey() { return "skillsphere_chat_" + (getCurrent() || "demo"); }
+      function getChatMessages() { return readJson(chatKey(), []); }
+      function saveChatMessages(messages) { writeJson(chatKey(), messages); }
+
+      function renderChat() {
+        const chatBox = qs("chatBox");
+        const messages = getChatMessages();
+        chatBox.innerHTML = "";
+
+        if (!messages.length) {
+          const empty = document.createElement("div");
+          empty.className = "small";
+          empty.textContent = "No chat messages yet.";
+          chatBox.appendChild(empty);
+          return;
+        }
+
+        messages.forEach((message) => {
+          const item = document.createElement("div");
+          item.className = "msg me";
+          item.innerHTML = `<div>${message.text}</div><div class="small" style="color:rgba(255,255,255,0.78)">${message.time}</div>`;
+          chatBox.appendChild(item);
+        });
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      qs("sendChat").addEventListener("click", () => {
+        const input = qs("chatInput");
+        const text = input.value.trim();
+        if (!text) return;
+        const messages = getChatMessages();
+        messages.push({ text, time: new Date().toLocaleTimeString() });
+        saveChatMessages(messages);
+        input.value = "";
+        renderChat();
+      });
+
+      qs("chatInput").addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault();
+          qs("sendChat").click();
+        }
+      });
+
+      qs("clearChat").addEventListener("click", () => {
+        saveChatMessages([]);
+        renderChat();
+      });
+
+      function renderBusinessChannels() {
+        const current = getCurrent();
+        const completedIds = getCompleted(current);
+        const completedTypes = new Set(getProjects().filter((project) => completedIds.includes(project.id)).map((project) => project.type));
+        const container = qs("businessChannels");
+        container.innerHTML = "";
+
+        getTypes().filter((type) => type !== "All").forEach((type) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "filter-btn";
+          button.textContent = `${type} Business`;
+          button.disabled = !completedTypes.has(type);
+          button.style.opacity = button.disabled ? "0.55" : "1";
+          button.addEventListener("click", () => {
+            if (button.disabled) {
+              if (!current) openAuthModal("Sign in and complete a project to unlock Business channels.");
+              return;
+            }
+            alert(`${type} Business channel unlocked.`);
+          });
+          container.appendChild(button);
+        });
+
+        qs("businessNotice").textContent = current
+          ? `${completedIds.length} completed project(s). Completed project types unlock their business channels.`
+          : "Sign in and mark projects complete to unlock business channels.";
+      }
+
+      function renderAll() {
+        renderFilters();
+        renderProjects();
+        renderTodos();
+        renderChat();
+        renderBusinessChannels();
+      }
+
+      function initMotivationWidget() {
+        const messages = [
+          "Small steps every day add up.",
+          "Finish one useful thing today.",
+          "Mistakes are proof that you are practicing.",
+          "Ten focused minutes can restart momentum.",
+          "Make the next task small enough to begin."
+        ];
+        const widget = qs("motivateWidget");
+        const box = qs("motivateBox");
+        const avatar = qs("motivateAvatar");
+        const text = qs("motivateText");
+        const pick = () => {
+          text.textContent = messages[Math.floor(Math.random() * messages.length)];
+        };
+        const show = () => {
+          pick();
+          widget.classList.add("open");
+          box.setAttribute("aria-hidden", "false");
+          avatar.setAttribute("aria-expanded", "true");
+        };
+        const hide = () => {
+          widget.classList.remove("open");
+          box.setAttribute("aria-hidden", "true");
+          avatar.setAttribute("aria-expanded", "false");
+        };
+        widget.addEventListener("mouseenter", show);
+        widget.addEventListener("mouseleave", hide);
+        avatar.addEventListener("focus", show);
+        avatar.addEventListener("click", () => widget.classList.contains("open") ? hide() : show());
+        qs("motivateNew").addEventListener("click", pick);
+        qs("motivateClose").addEventListener("click", hide);
+      }
+
+      updateAuthUI();
+      renderAll();
+      initMotivationWidget();
+      closeAuthModal();
+      closeDetail();
+    });
+  </script>
+</body>
+</html>
